@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>474</width>
-    <height>312</height>
+    <width>465</width>
+    <height>385</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -92,11 +92,6 @@
              <width>100</width>
              <height>0</height>
             </size>
-           </property>
-           <property name="font">
-            <font>
-             <pointsize>8</pointsize>
-            </font>
            </property>
           </widget>
          </item>
@@ -694,12 +689,6 @@
      </layout>
     </item>
    </layout>
-   <zorder></zorder>
-   <zorder>groupBox_3</zorder>
-   <zorder>groupBox_6</zorder>
-   <zorder>verticalSpacer</zorder>
-   <zorder></zorder>
-   <zorder>labelOpcode</zorder>
   </widget>
  </widget>
  <layoutdefault spacing="6" margin="11"/>

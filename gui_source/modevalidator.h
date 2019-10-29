@@ -28,6 +28,7 @@
 class ModeValidator : public QValidator
 {
     Q_OBJECT
+
 public:
     enum MODE
     {
@@ -44,6 +45,7 @@ public:
     explicit ModeValidator(QObject *parent=nullptr);
     void setData(DATA data);
     virtual State validate(QString &input,int &pos) const;
+
 private:
     DATA data;
 };
