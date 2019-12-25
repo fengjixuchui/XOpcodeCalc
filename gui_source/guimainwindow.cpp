@@ -29,14 +29,20 @@ GuiMainWindow::GuiMainWindow(QWidget *parent) :
 
     setWindowTitle(QString("%1 v%2").arg(X_APPLICATIONNAME).arg(X_APPLICATIONVERSION));
 
+    QFont font=ui->lineEditOpcode->font();
+    font.setPointSizeF(font.pointSizeF()*2);
+    font.setBold(true);
+    ui->lineEditOpcode->setFont(font);
+
     DialogOptions::loadOptions(&options);
     adjustWindow();
 
-#ifdef OPCODE32
-    loadOpcodes(ASM_DEF::asm_records32,sizeof(ASM_DEF::asm_records32)/sizeof(ASM_DEF::OPCODE_RECORD));
-#else
-    loadOpcodes(ASM_DEF::asm_records64,sizeof(ASM_DEF::asm_records64)/sizeof(ASM_DEF::OPCODE_RECORD));
-#endif
+    ui->comboBoxOpcodeGroup->addItem(tr("Two operands"),OG_TWOOPERANDS);
+    ui->comboBoxOpcodeGroup->addItem(tr("One operand"),OG_ONEOPERAND);
+    ui->comboBoxOpcodeGroup->addItem(tr("Mul/Div"),OG_MULDIV);
+    ui->comboBoxOpcodeGroup->addItem(tr("Shift"),OG_SHIFT);
+    ui->comboBoxOpcodeGroup->addItem(tr("Bits"),OG_BITS);
+    ui->comboBoxOpcodeGroup->addItem(tr("Special"),OG_SPECIAL);
 
     ui->comboBoxMode->addItem(tr("HEX"),ModeValidator::MODE_HEX);
     ui->comboBoxMode->addItem(tr("Signed"),ModeValidator::MODE_SIGNED);
@@ -97,7 +103,7 @@ void GuiMainWindow::adjustWindow()
 void GuiMainWindow::calc()
 {
     ModeValidator::MODE mode=static_cast<ModeValidator::MODE>(ui->comboBoxMode->currentData().toInt());
-    ASM_DEF::OPCODE_RECORD currentRecord=mapOpcodes.value(static_cast<ASM_DEF::OP>(ui->comboBoxModeOpcode->currentData().toInt()));
+    ASM_DEF::OPCODE_RECORD currentRecord=mapOpcodes.value(static_cast<ASM_DEF::OP>(ui->comboBoxOpcode->currentData().toInt()));
 
     RECDATA data=RECDATA_INIT;
 
@@ -109,8 +115,8 @@ void GuiMainWindow::calc()
 
     bool bSuccess=true;
 
-    if(     (currentRecord.opcode==ASM_DEF::OP_DIV)||
-            (currentRecord.opcode==ASM_DEF::OP_IDIV))
+    if( (currentRecord.opcode==ASM_DEF::OP_DIV)||
+        (currentRecord.opcode==ASM_DEF::OP_IDIV))
     {
         if(data.OPERAND[1]==0)
         {
@@ -124,11 +130,15 @@ void GuiMainWindow::calc()
 
         setLineEditValue(ui->lineEditResult1,mode,data.RESULT[0]);
         setLineEditValue(ui->lineEditResult2,mode,data.RESULT[1]);
+        setLineEditValue(ui->lineEditResult3,mode,data.RESULT[2]);
+        setLineEditValue(ui->lineEditResult4,mode,data.RESULT[3]);
     }
     else
     {
         ui->lineEditResult1->clear();
         ui->lineEditResult2->clear();
+        ui->lineEditResult3->clear();
+        ui->lineEditResult4->clear();
 
         data.FLAG[1]=data.FLAG[0];
     }
@@ -149,15 +159,20 @@ void GuiMainWindow::calc()
 
 void GuiMainWindow::loadOpcodes(const ASM_DEF::OPCODE_RECORD *pRecords, qint32 nRecordsSize)
 {
+    QSignalBlocker blocker(ui->comboBoxOpcode);
+
+    mapOpcodes.clear();
+    ui->comboBoxOpcode->clear();
+
     for(int i=0;i<nRecordsSize;i++)
     {
         mapOpcodes.insert(pRecords[i].opcode,pRecords[i]);
 
-        ui->comboBoxModeOpcode->addItem(pRecords[i].pszName,static_cast<int>(pRecords[i].opcode));
+        ui->comboBoxOpcode->addItem(pRecords[i].pszName,static_cast<int>(pRecords[i].opcode));
     }
 }
 
-void GuiMainWindow::on_comboBoxModeOpcode_currentIndexChanged(int index)
+void GuiMainWindow::on_comboBoxOpcode_currentIndexChanged(int index)
 {
     if(index!=-1)
     {
@@ -181,7 +196,7 @@ void GuiMainWindow::adjustValue(QGroupBox *pGroupBox, ASM_DEF::VALUE_RECORD vr)
 
 void GuiMainWindow::adjustMode()
 {
-    ASM_DEF::OPCODE_RECORD currentRecord=mapOpcodes.value(static_cast<ASM_DEF::OP>(ui->comboBoxModeOpcode->currentData().toInt()));
+    ASM_DEF::OPCODE_RECORD currentRecord=mapOpcodes.value(static_cast<ASM_DEF::OP>(ui->comboBoxOpcode->currentData().toInt()));
 
     ModeValidator::MODE mode=static_cast<ModeValidator::MODE>(ui->comboBoxMode->currentData().toInt());
 
@@ -201,12 +216,14 @@ void GuiMainWindow::adjustMode()
     modeValidator[1].setData(validatorData[1]);
     modeValidatorFlag.setData(validatorDataFlag);
 
-    ui->labelOpcode->setText(currentRecord.pszExample);
+    ui->lineEditOpcode->setText(currentRecord.pszExample);
 
     adjustValue(ui->groupBoxOperand1,currentRecord.vrOperand[0]);
     adjustValue(ui->groupBoxOperand2,currentRecord.vrOperand[1]);
     adjustValue(ui->groupBoxResult1,currentRecord.vrResult[0]);
     adjustValue(ui->groupBoxResult2,currentRecord.vrResult[1]);
+    adjustValue(ui->groupBoxResult3,currentRecord.vrResult[2]);
+    adjustValue(ui->groupBoxResult4,currentRecord.vrResult[3]);
 }
 
 void GuiMainWindow::on_lineEditOperand1_textChanged(const QString &arg1)
@@ -355,12 +372,7 @@ void GuiMainWindow::setLineEditValue(QLineEdit *pLineEdit, ModeValidator::MODE m
     }
     else if(mode==ModeValidator::MODE_SIGNED)
     {
-
-#ifdef OPCODE32
-        sText=QString::number(static_cast<qint32>(nValue),10);
-#else
-        sText=QString::number(static_cast<qint64>(nValue),10);
-#endif
+        sText=QString::number(static_cast<SXVALUE>(nValue),10);
     }
     else if(mode==ModeValidator::MODE_UNSIGNED)
     {
@@ -370,7 +382,7 @@ void GuiMainWindow::setLineEditValue(QLineEdit *pLineEdit, ModeValidator::MODE m
     pLineEdit->setText(sText);
 }
 
-void GuiMainWindow::adjustFlags(quint32 nFlag, bool bState)
+void GuiMainWindow::adjustFlags(XVALUE nFlag, bool bState)
 {
     ModeValidator::MODE mode=static_cast<ModeValidator::MODE>(ui->comboBoxMode->currentData().toInt());
 
@@ -386,4 +398,23 @@ void GuiMainWindow::adjustFlags(quint32 nFlag, bool bState)
     }
 
     setLineEditValue(ui->lineEditFlagsBefore,mode,nValue);
+}
+
+void GuiMainWindow::on_comboBoxOpcodeGroup_currentIndexChanged(int index)
+{
+    if(index!=-1)
+    {
+        switch(ui->comboBoxOpcodeGroup->currentData(Qt::UserRole).toUInt())
+        {
+            case OG_TWOOPERANDS:    loadOpcodes(ASM_DEF::asm_twooperands,sizeof(ASM_DEF::asm_twooperands)/sizeof(ASM_DEF::OPCODE_RECORD));      break;
+            case OG_ONEOPERAND:     loadOpcodes(ASM_DEF::asm_oneoperand,sizeof(ASM_DEF::asm_oneoperand)/sizeof(ASM_DEF::OPCODE_RECORD));        break;
+            case OG_MULDIV:         loadOpcodes(ASM_DEF::asm_muldiv,sizeof(ASM_DEF::asm_muldiv)/sizeof(ASM_DEF::OPCODE_RECORD));                break;
+            case OG_SHIFT:          loadOpcodes(ASM_DEF::asm_shift,sizeof(ASM_DEF::asm_shift)/sizeof(ASM_DEF::OPCODE_RECORD));                  break;
+            case OG_BITS:           loadOpcodes(ASM_DEF::asm_bits,sizeof(ASM_DEF::asm_bits)/sizeof(ASM_DEF::OPCODE_RECORD));                    break;
+            case OG_SPECIAL:        loadOpcodes(ASM_DEF::asm_special,sizeof(ASM_DEF::asm_special)/sizeof(ASM_DEF::OPCODE_RECORD));              break;
+        }
+
+        adjustMode();
+        calc();
+    }
 }

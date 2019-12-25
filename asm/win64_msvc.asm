@@ -1,6 +1,6 @@
 RECDATA64   STRUCT
 OPERAND     DQ(2)       dup(?)
-RESULT      DQ(2)       dup(?)
+RESULT      DQ(4)       dup(?)
 FLAG        DQ(2)       dup(?)
 RECDATA64   ENDS
 
@@ -27,6 +27,8 @@ __ENTER     MACRO
 __LEAVE     MACRO
             mov         (RECDATA64 PTR [rsi]).RESULT[0],rax
             mov         (RECDATA64 PTR [rsi]).RESULT[8],rdx
+            mov         (RECDATA64 PTR [rsi]).RESULT[16],rcx
+            mov         (RECDATA64 PTR [rsi]).RESULT[24],rbx
             pushf       
             pop         (RECDATA64 PTR [rsi]).FLAG[8]
             
@@ -235,6 +237,30 @@ op_rcr     PROC
             rcr         rax,cl
             __LEAVE
 op_rcr      ENDP
+;################################
+; CPUID
+;################################
+op_cpuid    PROC
+            __ENTER
+            cpuid
+            __LEAVE
+op_cpuid    ENDP
+;################################
+; BSWAP
+;################################
+op_bswap    PROC
+            __ENTER
+            bswap       rax
+            __LEAVE
+op_bswap    ENDP
+;################################
+; BSF
+;################################
+op_bsf      PROC
+            __ENTER
+            bsf         rax,rcx
+            __LEAVE
+op_bsf      ENDP
 
 _TEXT       ENDS
 

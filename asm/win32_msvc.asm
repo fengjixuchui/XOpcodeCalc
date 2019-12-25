@@ -6,7 +6,7 @@
 
 RECDATA32   STRUCT
 OPERAND     DD(2)       dup(?)
-RESULT      DD(2)       dup(?)
+RESULT      DD(4)       dup(?)
 FLAG        DD(2)       dup(?)
 RECDATA32   ENDS
 
@@ -30,6 +30,8 @@ __ENTER     MACRO
 __LEAVE     MACRO
             mov         [esi].RESULT[0],eax
             mov         [esi].RESULT[4],edx
+            mov         [esi].RESULT[8],ecx
+            mov         [esi].RESULT[12],ebx
             pushf       
             pop         [esi].FLAG[4]
             
@@ -232,4 +234,28 @@ op_rcr     PROC
             rcr         eax,cl
             __LEAVE
 op_rcr      ENDP
+;################################
+; CPUID
+;################################
+op_cpuid    PROC
+            __ENTER
+            cpuid
+            __LEAVE
+op_cpuid    ENDP
+;################################
+; BSWAP
+;################################
+op_bswap    PROC
+            __ENTER
+            bswap       eax
+            __LEAVE
+op_bswap    ENDP
+;################################
+; BSF
+;################################
+op_bsf     PROC
+            __ENTER
+            bsf         eax,ecx
+            __LEAVE
+op_bsf      ENDP
 END

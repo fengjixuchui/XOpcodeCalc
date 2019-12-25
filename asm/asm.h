@@ -12,7 +12,7 @@ typedef long long SXVALUE;
 struct RECDATA
 {
     XVALUE OPERAND[2];
-    XVALUE RESULT[2];
+    XVALUE RESULT[4];
     XVALUE FLAG[2];
 };
 #define RECDATA_INIT {{},{},{}}
@@ -46,4 +46,7 @@ extern "C" void op_rol(RECDATA *pRecData)       XASM("op_rol");
 extern "C" void op_ror(RECDATA *pRecData)       XASM("op_ror");
 extern "C" void op_rcl(RECDATA *pRecData)       XASM("op_rcl");
 extern "C" void op_rcr(RECDATA *pRecData)       XASM("op_rcr");
+extern "C" void op_cpuid(RECDATA *pRecData)     XASM("op_cpuid");
+extern "C" void op_bswap(RECDATA *pRecData)     XASM("op_bswap");
+extern "C" void op_bsf(RECDATA *pRecData)       XASM("op_bsf");
 #endif // ASM_H
