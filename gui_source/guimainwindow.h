@@ -1,4 +1,4 @@
-// Copyright (c) 2019 hors<horsicq@gmail.com>
+// Copyright (c) 2019-2020 hors<horsicq@gmail.com>
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -22,14 +22,12 @@
 #define GUIMAINWINDOW_H
 
 #include "../global.h"
-
 #include <QMainWindow>
 #include <QGroupBox>
 #include <QLineEdit>
 #include "dialogabout.h"
 #include "dialogoptions.h"
 #include "modevalidator.h"
-
 #include "../asm/asm.h"
 #include "../asm_defs.h"
 
@@ -52,14 +50,13 @@ class GuiMainWindow : public QMainWindow
     };
 
 public:
-    explicit GuiMainWindow(QWidget *parent=nullptr);
+    explicit GuiMainWindow(QWidget *pParent=nullptr);
     ~GuiMainWindow();
 
 private slots:
     void on_pushButtonExit_clicked();
     void on_pushButtonAbout_clicked();
-    void on_pushButton_clicked();
-    void on_comboBoxOpcode_currentIndexChanged(int index);
+    void on_comboBoxOpcode_currentIndexChanged(int nIndex);
     void on_lineEditOperand1_textChanged(const QString &arg1);
     void on_lineEditOperand2_textChanged(const QString &arg1);
     void on_lineEditResult1_textChanged(const QString &arg1);
@@ -81,6 +78,7 @@ private slots:
     void setLineEditValue(QLineEdit *pLineEdit,ModeValidator::MODE mode,XVALUE nValue);
     void adjustFlags(XVALUE nFlag, bool bState);
     void on_comboBoxOpcodeGroup_currentIndexChanged(int index);
+    void on_pushButtonOptions_clicked();
 
 private:
     Ui::GuiMainWindow *ui;

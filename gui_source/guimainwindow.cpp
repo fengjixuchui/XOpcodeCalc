@@ -1,4 +1,4 @@
-// Copyright (c) 2019 hors<horsicq@gmail.com>
+// Copyright (c) 2019-2020 hors<horsicq@gmail.com>
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -21,8 +21,8 @@
 #include "guimainwindow.h"
 #include "ui_guimainwindow.h"
 
-GuiMainWindow::GuiMainWindow(QWidget *parent) :
-    QMainWindow(parent),
+GuiMainWindow::GuiMainWindow(QWidget *pParent) :
+    QMainWindow(pParent),
     ui(new Ui::GuiMainWindow)
 {
     ui->setupUi(this);
@@ -74,14 +74,6 @@ void GuiMainWindow::on_pushButtonAbout_clicked()
     DialogAbout di(this);
 
     di.exec();
-}
-
-void GuiMainWindow::on_pushButton_clicked()
-{
-    DialogOptions dialogOptions(this,&options);
-    dialogOptions.exec();
-
-    adjustWindow();
 }
 
 void GuiMainWindow::adjustWindow()
@@ -172,9 +164,9 @@ void GuiMainWindow::loadOpcodes(const ASM_DEF::OPCODE_RECORD *pRecords, qint32 n
     }
 }
 
-void GuiMainWindow::on_comboBoxOpcode_currentIndexChanged(int index)
+void GuiMainWindow::on_comboBoxOpcode_currentIndexChanged(int nIndex)
 {
-    if(index!=-1)
+    if(nIndex!=-1)
     {
         adjustMode();
         calc();
@@ -417,4 +409,12 @@ void GuiMainWindow::on_comboBoxOpcodeGroup_currentIndexChanged(int index)
         adjustMode();
         calc();
     }
+}
+
+void GuiMainWindow::on_pushButtonOptions_clicked()
+{
+    DialogOptions dialogOptions(this,&options);
+    dialogOptions.exec();
+
+    adjustWindow();
 }

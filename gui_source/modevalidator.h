@@ -1,4 +1,4 @@
-// Copyright (c) 2019 hors<horsicq@gmail.com>
+// Copyright (c) 2019-2020 hors<horsicq@gmail.com>
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -34,7 +34,7 @@ public:
     {
         MODE_HEX=0,
         MODE_SIGNED,
-        MODE_UNSIGNED,
+        MODE_UNSIGNED
     };
     struct DATA
     {
@@ -42,9 +42,9 @@ public:
         quint64 nMaxValue;
     };
 
-    explicit ModeValidator(QObject *parent=nullptr);
+    explicit ModeValidator(QObject *pParent=nullptr);
     void setData(DATA data);
-    virtual State validate(QString &input,int &pos) const;
+    virtual State validate(QString &sInput,int &pos) const;
 
 private:
     DATA data;
